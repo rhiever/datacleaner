@@ -18,9 +18,7 @@ Generally, we have licensed datacleaner to make it as widely usable as possible.
 
 ## Installation
 
-```bash
-pip install datacleaner
-```
+[empty for now]
 
 ## Usage
 
