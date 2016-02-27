@@ -4,11 +4,11 @@ A Python tool that automatically cleans data sets and readies them for analysis.
 
 ## datacleaner is not magic
 
-datacleaner works with CSV files only (with any regular delimiter, such as tabs, spaces, or commas).
+datacleaner works with data in [pandas DataFrames](http://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html).
 
 datacleaner is not magic, and it won't take an unorganized blob of text and automagically parse it out for you.
 
-What datacleaner *will* do is save you a ton of time encoding and cleaning your data once it's already in CSV format.
+What datacleaner *will* do is save you a ton of time encoding and cleaning your data once it's already in a format that pandas DataFrames can handle.
 
 ## License
 
