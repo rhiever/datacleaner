@@ -24,6 +24,8 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 import argparse
 
+from ._version import __version__
+
 def autoclean(input_dataframe, copy=False):
     """Performs a series of automated data cleaning transformations on the provided data set
 
@@ -103,8 +105,6 @@ def autoclean_cv(training_dataframe, testing_dataframe, copy=False):
 
 def main():
     """Main function that is called when datacleaner is run on the command line"""
-    from _version import __version__
-
     parser = argparse.ArgumentParser(description='A Python tool that automatically cleans data sets and readies them for analysis')
 
     parser.add_argument('INPUT_FILENAME', type=str, help='File name of the data file to clean')
@@ -135,7 +135,7 @@ def main():
             print('Cleaned data set:')
             print(clean_data)
             print('')
-            print('If you cannot view the entire data set, it is recommended to output it to a file. '
+            print('If you cannot view the entire data set, output it to a file instead. '
                   'Type datacleaner --help for more information.')
         else:
             clean_data.to_csv(args.OUTPUT_FILENAME, sep=args.OUTPUT_SEPARATOR, index=False)
@@ -154,7 +154,7 @@ def main():
             print('Cleaned testing data set:')
             print(clean_testing_data)
             print('')
-            print('If you cannot view the entire data set, it is recommended to output it to a file. '
+            print('If you cannot view the entire data set, output it to a file instead. '
                   'Type datacleaner --help for more information.')
         else:
             clean_training_data.to_csv(args.OUTPUT_FILENAME, sep=args.OUTPUT_SEPARATOR, index=False)
