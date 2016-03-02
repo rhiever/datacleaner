@@ -47,15 +47,16 @@ def autoclean(input_dataframe, copy=False):
         input_dataframe = input_dataframe.copy()
 
     for column in input_dataframe.columns.values:
-        if str(input_dataframe[column].values.dtype) == 'object':
-            input_dataframe[column] = LabelEncoder().fit_transform(input_dataframe[column].values)
-
         # Replace NaNs with the median or mode of the column depending on the column type
         # If there are very many levels in the column, then it is probably continuous
         if len(input_dataframe[column].unique()) > 0.2 * len(input_dataframe):
             input_dataframe[column].fillna(input_dataframe[column].median(), inplace=True)
         else:
-            input_dataframe[column].fillna(input_dataframe[column].mode(), inplace=True)
+            input_dataframe[column].fillna(input_dataframe[column].mode()[0], inplace=True)
+
+        # Encode all strings with numerical equivalents
+        if str(input_dataframe[column].values.dtype) == 'object':
+            input_dataframe[column] = LabelEncoder().fit_transform(input_dataframe[column].values)
 
     return input_dataframe
 
@@ -95,11 +96,6 @@ def autoclean_cv(training_dataframe, testing_dataframe, copy=False):
         testing_dataframe = testing_dataframe.copy()
 
     for column in training_dataframe.columns.values:
-        if str(training_dataframe[column].values.dtype) == 'object':
-            column_label_encoder = LabelEncoder().fit(training_dataframe[column].values)
-            training_dataframe[column] = column_label_encoder.transform(training_dataframe[column].values)
-            testing_dataframe[column] = column_label_encoder.transform(testing_dataframe[column].values)
-
         # Replace NaNs with the median or mode of the column depending on the column type
         # If there are very many levels in the column, then it is probably continuous
         if len(training_dataframe[column].unique()) > 0.2 * len(training_dataframe):
@@ -107,9 +103,15 @@ def autoclean_cv(training_dataframe, testing_dataframe, copy=False):
             training_dataframe[column].fillna(column_median, inplace=True)
             testing_dataframe[column].fillna(column_median, inplace=True)
         else:
-            column_mode = training_dataframe[column].mode()
+            column_mode = training_dataframe[column].mode()[0]
             training_dataframe[column].fillna(column_mode, inplace=True)
             testing_dataframe[column].fillna(column_mode, inplace=True)
+
+        # Encode all strings with numerical equivalents
+        if str(training_dataframe[column].values.dtype) == 'object':
+            column_label_encoder = LabelEncoder().fit(training_dataframe[column].values)
+            training_dataframe[column] = column_label_encoder.transform(training_dataframe[column].values)
+            testing_dataframe[column] = column_label_encoder.transform(testing_dataframe[column].values)
 
     return training_dataframe, testing_dataframe
 

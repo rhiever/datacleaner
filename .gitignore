@@ -60,3 +60,7 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+test_data/adult.csv.gz
+
+testing.ipynb
