@@ -69,9 +69,9 @@ def autoclean(input_dataframe, drop_nans=False, copy=False):
 def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False):
     """Performs a series of automated data cleaning transformations on the provided training and testing data sets
 
-    Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations from only the training set, then
-    applying those transformations to both the training and testing set. By doing so, this function will prevent information leak from the
-    training set into the testing set.
+    Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations
+    from only the training set, then applying those transformations to both the training and testing set.
+    By doing so, this function will prevent information leak from the training set into the testing set.
 
     Parameters
     ----------
