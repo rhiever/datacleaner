@@ -81,7 +81,7 @@ which will read the data from `my_data.csv` (assuming columns are separated by c
 
 datacleaner can also be used as part of a script. There are two primary functions implemented in datacleaner: `autoclean` and `autoclean_cv`.
 
-```python
+```
 autoclean(input_dataframe, drop_nans=False, copy=False)
     Performs a series of automated data cleaning transformations on the provided data set
     
@@ -102,13 +102,13 @@ autoclean(input_dataframe, drop_nans=False, copy=False)
         Cleaned data set
 ```
 
-```python
+```
 autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False)
     Performs a series of automated data cleaning transformations on the provided training and testing data sets
     
-    Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations from only the training set, then
-    applying those transformations to both the training and testing set. By doing so, this function will prevent information leak from the
-    training set into the testing set.
+    Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations
+    from only the training set, then applying those transformations to both the training and testing set.
+    By doing so, this function will prevent information leak from the training set into the testing set.
     
     Parameters
     ----------
