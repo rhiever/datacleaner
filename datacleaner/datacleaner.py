@@ -26,13 +26,16 @@ import argparse
 
 from ._version import __version__
 
-def autoclean(input_dataframe, copy=False):
+def autoclean(input_dataframe, drop_nans=False, copy=False):
     """Performs a series of automated data cleaning transformations on the provided data set
 
     Parameters
     ----------
     input_dataframe: pandas.DataFrame
         Data set to clean
+
+    drop_nans: bool
+        Drop all rows that have a NaN in any column (default: False)
 
     copy: bool
         Make a copy of the data set (default: False)
@@ -45,6 +48,9 @@ def autoclean(input_dataframe, copy=False):
     """
     if copy:
         input_dataframe = input_dataframe.copy()
+    
+    if drop_nans:
+        input_dataframe.dropna(inplace=True)
 
     for column in input_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
@@ -60,7 +66,7 @@ def autoclean(input_dataframe, copy=False):
 
     return input_dataframe
 
-def autoclean_cv(training_dataframe, testing_dataframe, copy=False):
+def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False):
     """Performs a series of automated data cleaning transformations on the provided training and testing data sets
 
     Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations from only the training set, then
@@ -74,6 +80,9 @@ def autoclean_cv(training_dataframe, testing_dataframe, copy=False):
 
     testing_dataframe: pandas.DataFrame
         Testing data set
+
+    drop_nans: bool
+        Drop all rows that have a NaN in any column (default: False)
 
     copy: bool
         Make a copy of the data set (default: False)
@@ -94,6 +103,10 @@ def autoclean_cv(training_dataframe, testing_dataframe, copy=False):
     if copy:
         training_dataframe = training_dataframe.copy()
         testing_dataframe = testing_dataframe.copy()
+    
+    if drop_nans:
+        training_dataframe.dropna(inplace=True)
+        testing_dataframe.dropna(inplace=True)
 
     for column in training_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
@@ -136,13 +149,16 @@ def main():
     parser.add_argument('-os', action='store', dest='OUTPUT_SEPARATOR', default='\t',
                         type=str, help='Column separator for the output file(s) (default: \\t)')
 
+    parser.add_argument('--drop-nans', action='store_true', dest='DROP_NANS', default=False,
+                        help='Drop all rows that have a NaN in any column (default: False)')
+
     parser.add_argument('--version', action='version', version='datacleaner v{version}'.format(version=__version__))
 
     args = parser.parse_args()
 
     input_data = pd.read_csv(args.INPUT_FILENAME, sep=args.INPUT_SEPARATOR)
     if args.CROSS_VAL_FILENAME is None:
-        clean_data = autoclean(input_data)
+        clean_data = autoclean(input_data, drop_nans=args.DROP_NANS)
         if args.OUTPUT_FILENAME is None:
             print('Cleaned data set:')
             print(clean_data)
@@ -157,7 +173,7 @@ def main():
             return
     
         cross_val_data = pd.read_csv(args.CROSS_VAL_FILENAME, sep=args.INPUT_SEPARATOR)
-        clean_training_data, clean_testing_data = autoclean_cv(input_data, cross_val_data)
+        clean_training_data, clean_testing_data = autoclean_cv(input_data, cross_val_data, drop_nans=args.DROP_NANS)
 
         if args.OUTPUT_FILENAME is None:
             print('Cleaned training data set:')
