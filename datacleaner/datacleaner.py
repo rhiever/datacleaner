@@ -50,8 +50,12 @@ def autoclean(input_dataframe, copy=False):
         if str(input_dataframe[column].values.dtype) == 'object':
             input_dataframe[column] = LabelEncoder().fit_transform(input_dataframe[column].values)
 
-        # Replace NaNs with the median value of the column
-        input_dataframe[column].fillna(input_dataframe[column].median(), inplace=True)
+        # Replace NaNs with the median or mode of the column depending on the column type
+        # If there are very many levels in the column, then it is probably continuous
+        if len(input_dataframe[column].unique()) > 0.2 * len(input_dataframe):
+            input_dataframe[column].fillna(input_dataframe[column].median(), inplace=True)
+        else:
+            input_dataframe[column].fillna(input_dataframe[column].mode(), inplace=True)
 
     return input_dataframe
 
@@ -96,10 +100,16 @@ def autoclean_cv(training_dataframe, testing_dataframe, copy=False):
             training_dataframe[column] = column_label_encoder.transform(training_dataframe[column].values)
             testing_dataframe[column] = column_label_encoder.transform(testing_dataframe[column].values)
 
-        # Replace NaNs with the median value of the column
-        column_median = training_dataframe[column].median()
-        training_dataframe[column].fillna(column_median, inplace=True)
-        testing_dataframe[column].fillna(column_median, inplace=True)
+        # Replace NaNs with the median or mode of the column depending on the column type
+        # If there are very many levels in the column, then it is probably continuous
+        if len(training_dataframe[column].unique()) > 0.2 * len(training_dataframe):
+            column_median = training_dataframe[column].median()
+            training_dataframe[column].fillna(column_median, inplace=True)
+            testing_dataframe[column].fillna(column_median, inplace=True)
+        else:
+            column_mode = training_dataframe[column].mode()
+            training_dataframe[column].fillna(column_mode, inplace=True)
+            testing_dataframe[column].fillna(column_mode, inplace=True)
 
     return training_dataframe, testing_dataframe
 
