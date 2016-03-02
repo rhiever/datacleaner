@@ -21,9 +21,10 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 from __future__ import print_function
 import pandas as pd
+from sklearn.preprocessing import LabelEncoder
 import argparse
 
-def autoclean(input_dataframe):
+def autoclean(input_dataframe, copy=False):
     """Performs a series of automated data cleaning transformations on the provided data set
 
     Parameters
@@ -31,17 +32,30 @@ def autoclean(input_dataframe):
     input_dataframe: pandas.DataFrame
         Data set to clean
 
+    copy: bool
+        Make a copy of the data set (default: False)
+
     Returns
     ----------
     output_dataframe: pandas.DataFrame
         Cleaned data set
 
     """
-    return
+    if copy:
+        input_dataframe = input_dataframe.copy()
 
-def autoclean_cv(training_dataframe, testing_dataframe):
+    for column in input_dataframe.columns.values:
+        if str(input_dataframe[column].values.dtype) == 'object':
+            input_dataframe[column] = LabelEncoder().fit_transform(input_dataframe[column].values)
+
+        # Replace NaNs with the median value of the column
+        input_dataframe[column].fillna(input_dataframe[column].median())
+
+    return input_dataframe
+
+def autoclean_cv(training_dataframe, testing_dataframe, copy=False):
     """Performs a series of automated data cleaning transformations on the provided training and testing data sets
-    
+
     Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations from only the training set, then
     applying those transformations to both the training and testing set. By doing so, this function will prevent information leak from the
     training set into the testing set.
@@ -50,9 +64,12 @@ def autoclean_cv(training_dataframe, testing_dataframe):
     ----------
     training_dataframe: pandas.DataFrame
         Training data set
-    
+
     testing_dataframe: pandas.DataFrame
         Testing data set
+
+    copy: bool
+        Make a copy of the data set (default: False)
 
     Returns
     ----------
