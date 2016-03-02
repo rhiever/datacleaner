@@ -49,7 +49,7 @@ def autoclean(input_dataframe, copy=False):
             input_dataframe[column] = LabelEncoder().fit_transform(input_dataframe[column].values)
 
         # Replace NaNs with the median value of the column
-        input_dataframe[column].fillna(input_dataframe[column].median())
+        input_dataframe[column].fillna(input_dataframe[column].median(), inplace=True)
 
     return input_dataframe
 
@@ -80,7 +80,25 @@ def autoclean_cv(training_dataframe, testing_dataframe, copy=False):
         Cleaned testing data set
 
     """
-    return
+    if sorted(training_dataframe.columns.values) != sorted(testing_dataframe.columns.values):
+        raise ValueError('The training and testing DataFrames do not have the same columns.')
+
+    if copy:
+        training_dataframe = training_dataframe.copy()
+        testing_dataframe = testing_dataframe.copy()
+
+    for column in training_dataframe.columns.values:
+        if str(training_dataframe[column].values.dtype) == 'object':
+            column_label_encoder = LabelEncoder().fit(training_dataframe[column].values)
+            training_dataframe[column] = column_label_encoder.transform(training_dataframe[column].values)
+            testing_dataframe[column] = column_label_encoder.transform(testing_dataframe[column].values)
+
+        # Replace NaNs with the median value of the column
+        column_median = training_dataframe[column].median()
+        training_dataframe[column].fillna(column_median, inplace=True)
+        testing_dataframe[column].fillna(column_median, inplace=True)
+
+    return training_dataframe, testing_dataframe
 
 def main():
     """Main function that is called when datacleaner is run on the command line"""
