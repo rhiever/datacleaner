@@ -20,11 +20,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import print_function
+
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+
 import argparse
+from update_checker import update_check
 
 from ._version import __version__
+
+update_checked = False
 
 def autoclean(input_dataframe, drop_nans=False, copy=False):
     """Performs a series of automated data cleaning transformations on the provided data set
@@ -46,6 +51,11 @@ def autoclean(input_dataframe, drop_nans=False, copy=False):
         Cleaned data set
 
     """
+    global update_checked
+    if not update_checked:
+        update_check('datacleaner', __version__)
+        update_checked = True
+
     if copy:
         input_dataframe = input_dataframe.copy()
     
@@ -96,6 +106,11 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
         Cleaned testing data set
 
     """
+    global update_checked
+    if not update_checked:
+        update_check('datacleaner', __version__)
+        update_checked = True
+
     if set(training_dataframe.columns.values) != set(testing_dataframe.columns.values):
         raise ValueError('The training and testing DataFrames do not have the same columns. '
                          'Make sure that you are providing the same columns.')
