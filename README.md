@@ -44,7 +44,7 @@ datacleaner can be used on the command line. Use `--help` to see its usage instr
 
 ```
 usage: datacleaner [-h] [-cv CROSS_VAL_FILENAME] [-o OUTPUT_FILENAME]
-                   [-cvo CV_OUTPUT_FILENAME] [-is INPUT_SEPARATOR]
+                   [-cvo CV_OUTPUT_FILENAME] [-is INPUT_SEPARATOR] [-en ENCODER]
                    [-os OUTPUT_SEPARATOR] [--drop-nans] [--version]
                    INPUT_FILENAME
 
@@ -63,6 +63,7 @@ optional arguments:
                         Data file to output the cleaned cross-validation data
                         set to
   -is INPUT_SEPARATOR   Column separator for the input file(s) (default: \t)
+  -en ENCODER           Name of encoder to use (from category_encoders) (default: None)
   -os OUTPUT_SEPARATOR  Column separator for the output file(s) (default: \t)
   --drop-nans           Drop all rows that have a NaN in any column (default:
                         False)
@@ -95,6 +96,9 @@ autoclean(input_dataframe, drop_nans=False, copy=False)
     
     copy: bool
         Make a copy of the data set (default: False)
+        
+    encoder: str
+        The name of an encoder from category_encoders to use (default: None)
     
     Returns
     ----------
@@ -123,6 +127,9 @@ autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False)
     
     copy: bool
         Make a copy of the data set (default: False)
+        
+    encoder: str
+        The name of an encoder from category_encoders to use (default: None)
     
     Returns
     ----------

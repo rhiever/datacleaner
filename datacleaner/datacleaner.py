@@ -26,12 +26,14 @@ from sklearn.preprocessing import LabelEncoder
 
 import argparse
 from update_checker import update_check
+import category_encoders
 
 from ._version import __version__
 
 update_checked = False
 
-def autoclean(input_dataframe, drop_nans=False, copy=False):
+
+def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None):
     """Performs a series of automated data cleaning transformations on the provided data set
 
     Parameters
@@ -44,6 +46,9 @@ def autoclean(input_dataframe, drop_nans=False, copy=False):
 
     copy: bool
         Make a copy of the data set (default: False)
+
+    encoder: str
+        The name of an encoder from category_encoders to use (default: None)
 
     Returns
     ----------
@@ -62,6 +67,7 @@ def autoclean(input_dataframe, drop_nans=False, copy=False):
     if drop_nans:
         input_dataframe.dropna(inplace=True)
 
+    obj_cols = []
     for column in input_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
         # If there are very many levels in the column, then it is probably continuous
@@ -71,12 +77,19 @@ def autoclean(input_dataframe, drop_nans=False, copy=False):
             input_dataframe[column].fillna(input_dataframe[column].mode()[0], inplace=True)
 
         # Encode all strings with numerical equivalents
-        if str(input_dataframe[column].values.dtype) == 'object':
-            input_dataframe[column] = LabelEncoder().fit_transform(input_dataframe[column].values)
+            if str(input_dataframe[column].values.dtype) == 'object':
+                if encoder is None:
+                    input_dataframe[column] = LabelEncoder().fit_transform(input_dataframe[column].values)
+                else:
+                    obj_cols.append(column)
+
+    if encoder is not None:
+        input_dataframe = category_encoders.__dict__[encoder].fit_transform(input_dataframe)
 
     return input_dataframe
 
-def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False):
+
+def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False, encoder=None):
     """Performs a series of automated data cleaning transformations on the provided training and testing data sets
 
     Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations
@@ -96,6 +109,9 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
 
     copy: bool
         Make a copy of the data set (default: False)
+
+    encoder: str
+        The name of an encoder from category_encoders to use (default: None)
 
     Returns
     ----------
@@ -123,6 +139,7 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
         training_dataframe.dropna(inplace=True)
         testing_dataframe.dropna(inplace=True)
 
+    obj_col = []
     for column in training_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
         # If there are very many levels in the column, then it is probably continuous
@@ -137,11 +154,20 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
 
         # Encode all strings with numerical equivalents
         if str(training_dataframe[column].values.dtype) == 'object':
-            column_label_encoder = LabelEncoder().fit(training_dataframe[column].values)
-            training_dataframe[column] = column_label_encoder.transform(training_dataframe[column].values)
-            testing_dataframe[column] = column_label_encoder.transform(testing_dataframe[column].values)
+            if encoder is None:
+                column_label_encoder = LabelEncoder().fit(training_dataframe[column].values)
+                training_dataframe[column] = column_label_encoder.transform(training_dataframe[column].values)
+                testing_dataframe[column] = column_label_encoder.transform(testing_dataframe[column].values)
+            else:
+                obj_col.append(column)
+
+    if encoder is not None:
+        enc = category_encoders.__dict__[encoder].fit(training_dataframe)
+        training_dataframe = enc.transform(training_dataframe)
+        testing_dataframe = enc.transform(testing_dataframe)
 
     return training_dataframe, testing_dataframe
+
 
 def main():
     """Main function that is called when datacleaner is run on the command line"""
@@ -151,6 +177,9 @@ def main():
 
     parser.add_argument('-cv', action='store', dest='CROSS_VAL_FILENAME', default=None,
                          type=str, help='File name for the validation data set if performing cross-validation')
+
+    parser.add_argument('-en', action='store', dest='ENCODER', default=None,
+                         type=str, help='Name of encoder from category_encoders library to use for obj fields')
 
     parser.add_argument('-o', action='store', dest='OUTPUT_FILENAME', default=None,
                         type=str, help='Data file to output the cleaned data set to')
@@ -173,7 +202,7 @@ def main():
 
     input_data = pd.read_csv(args.INPUT_FILENAME, sep=args.INPUT_SEPARATOR)
     if args.CROSS_VAL_FILENAME is None:
-        clean_data = autoclean(input_data, drop_nans=args.DROP_NANS)
+        clean_data = autoclean(input_data, drop_nans=args.DROP_NANS, encoder=args.ENCODER)
         if args.OUTPUT_FILENAME is None:
             print('Cleaned data set:')
             print(clean_data)
@@ -188,7 +217,7 @@ def main():
             return
     
         cross_val_data = pd.read_csv(args.CROSS_VAL_FILENAME, sep=args.INPUT_SEPARATOR)
-        clean_training_data, clean_testing_data = autoclean_cv(input_data, cross_val_data, drop_nans=args.DROP_NANS)
+        clean_training_data, clean_testing_data = autoclean_cv(input_data, cross_val_data, drop_nans=args.DROP_NANS, encoder=args.ENCODER)
 
         if args.OUTPUT_FILENAME is None:
             print('Cleaned training data set:')
