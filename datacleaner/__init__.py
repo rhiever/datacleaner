@@ -20,4 +20,4 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from ._version import __version__
-from .datacleaner import datacleaner, main
+from .datacleaner import autoclean, autoclean_cv, main
