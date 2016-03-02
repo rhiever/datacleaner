@@ -96,7 +96,7 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
         Cleaned testing data set
 
     """
-    if sorted(training_dataframe.columns.values) != sorted(testing_dataframe.columns.values):
+    if set(training_dataframe.columns.values) != set(testing_dataframe.columns.values):
         raise ValueError('The training and testing DataFrames do not have the same columns. '
                          'Make sure that you are providing the same columns.')
 
