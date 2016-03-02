@@ -107,23 +107,58 @@ def main():
 
     parser = argparse.ArgumentParser(description='A Python tool that automatically cleans data sets and readies them for analysis')
 
-    parser.add_argument('INPUT_FILENAME', type=str, help='Data file to clean')
+    parser.add_argument('INPUT_FILENAME', type=str, help='File name of the data file to clean')
+
+    parser.add_argument('-cv', action='store', dest='CROSS_VAL_FILENAME', default=None,
+                         type=str, help='File name for the validation data set if performing cross-validation')
 
     parser.add_argument('-o', action='store', dest='OUTPUT_FILENAME', default=None,
-                        type=str, help='Data file to output to')
+                        type=str, help='Data file to output the cleaned data set to')
+
+    parser.add_argument('-cvo', action='store', dest='CV_OUTPUT_FILENAME', default=None,
+                        type=str, help='Data file to output the cleaned cross-validation data set to')
 
     parser.add_argument('-is', action='store', dest='INPUT_SEPARATOR', default='\t',
-                        type=str, help='Column separator for the input file (default: \\t)')
+                        type=str, help='Column separator for the input file(s) (default: \\t)')
                     
     parser.add_argument('-os', action='store', dest='OUTPUT_SEPARATOR', default='\t',
-                        type=str, help='Column separator for the output file (default: \\t)')
+                        type=str, help='Column separator for the output file(s) (default: \\t)')
 
-    parser.add_argument('--version', action='version',
-                        version='datacleaner v{version}'.format(version=__version__))
+    parser.add_argument('--version', action='version', version='datacleaner v{version}'.format(version=__version__))
 
     args = parser.parse_args()
 
+    input_data = pd.read_csv(args.INPUT_FILENAME, sep=args.INPUT_SEPARATOR)
+    if args.CROSS_VAL_FILENAME is None:
+        clean_data = autoclean(input_data)
+        if args.OUTPUT_FILENAME is None:
+            print('Cleaned data set:')
+            print(clean_data)
+            print('')
+            print('If you cannot view the entire data set, it is recommended to output it to a file. '
+                  'Type datacleaner --help for more information.')
+        else:
+            clean_data.to_csv(args.OUTPUT_FILENAME, sep=args.OUTPUT_SEPARATOR, index=False)
+    else:
+        if args.OUTPUT_FILENAME is not None and args.CV_OUTPUT_FILENAME is None:
+            print('You must specify both output file names. Type datacleaner --help for more information.')
+            return
     
+        cross_val_data = pd.read_csv(args.CROSS_VAL_FILENAME, sep=args.INPUT_SEPARATOR)
+        clean_training_data, clean_testing_data = autoclean_cv(input_data, cross_val_data)
+
+        if args.OUTPUT_FILENAME is None:
+            print('Cleaned training data set:')
+            print(clean_training_data)
+            print('')
+            print('Cleaned testing data set:')
+            print(clean_testing_data)
+            print('')
+            print('If you cannot view the entire data set, it is recommended to output it to a file. '
+                  'Type datacleaner --help for more information.')
+        else:
+            clean_training_data.to_csv(args.OUTPUT_FILENAME, sep=args.OUTPUT_SEPARATOR, index=False)
+            clean_testing_data.to_csv(args.OUTPUT_FILENAME, sep=args.OUTPUT_SEPARATOR, index=False)
 
 if __name__ == '__main__':
     main()
