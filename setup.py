@@ -33,7 +33,7 @@ or Twitter: https://twitter.com/randal_olson
 This project is hosted at https://github.com/rhiever/datacleaner
 ''',
     zip_safe=True,
-    install_requires=['pandas', 'scikit-learn', 'update_checker', 'category_encoders'],
+    install_requires=['pandas', 'scikit-learn', 'update_checker'],
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Information Technology',

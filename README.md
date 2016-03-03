@@ -44,7 +44,7 @@ datacleaner can be used on the command line. Use `--help` to see its usage instr
 
 ```
 usage: datacleaner [-h] [-cv CROSS_VAL_FILENAME] [-o OUTPUT_FILENAME]
-                   [-cvo CV_OUTPUT_FILENAME] [-is INPUT_SEPARATOR] [-en ENCODER]
+                   [-cvo CV_OUTPUT_FILENAME] [-is INPUT_SEPARATOR]
                    [-os OUTPUT_SEPARATOR] [--drop-nans] [--version]
                    INPUT_FILENAME
 
@@ -63,7 +63,6 @@ optional arguments:
                         Data file to output the cleaned cross-validation data
                         set to
   -is INPUT_SEPARATOR   Column separator for the input file(s) (default: \t)
-  -en ENCODER           Name of encoder to use (from category_encoders) (default: None)
   -os OUTPUT_SEPARATOR  Column separator for the output file(s) (default: \t)
   --drop-nans           Drop all rows that have a NaN in any column (default:
                         False)
@@ -97,8 +96,11 @@ autoclean(input_dataframe, drop_nans=False, copy=False)
     copy: bool
         Make a copy of the data set (default: False)
         
-    encoder: str
-        The name of an encoder from category_encoders to use (default: None)
+    encoder: category_encoders transformer
+        The a valid category_encoders transformer which is passed an inferred cols list. Default (None: LabelEncoder)
+
+    encoder_kwargs: category_encoders
+        The a valid sklearn transformer to encode categorical features. Default (None)
     
     Returns
     ----------
@@ -128,8 +130,11 @@ autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False)
     copy: bool
         Make a copy of the data set (default: False)
         
-    encoder: str
-        The name of an encoder from category_encoders to use (default: None)
+    encoder: category_encoders transformer
+        The a valid category_encoders transformer which is passed an inferred cols list. Default (None: LabelEncoder)
+
+    encoder_kwargs: category_encoders
+        The a valid sklearn transformer to encode categorical features. Default (None)
     
     Returns
     ----------
