@@ -66,13 +66,15 @@ def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None, encode
     if encoder_kwargs is None:
         encoder_kwargs = {}
 
+    if encoder is None:
+        encoder = LabelEncoder
+
     if copy:
         input_dataframe = input_dataframe.copy()
     
     if drop_nans:
         input_dataframe.dropna(inplace=True)
 
-    obj_cols = []
     for column in input_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
         # If there are very many levels in the column, then it is probably continuous
@@ -83,13 +85,7 @@ def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None, encode
 
         # Encode all strings with numerical equivalents
         if str(input_dataframe[column].values.dtype) == 'object':
-            if encoder is None:
-                input_dataframe[column] = encoder().fit_transform(input_dataframe[column].values)
-            else:
-                obj_cols.append(column)
-
-    if encoder is not None:
-        input_dataframe = encoder(cols=obj_cols, **encoder_kwargs).fit_transform(input_dataframe)
+            input_dataframe[column] = encoder(**encoder_kwargs).fit_transform(input_dataframe[column].values)
 
     return input_dataframe
 
@@ -142,6 +138,9 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
     if encoder_kwargs is None:
         encoder_kwargs = {}
 
+    if encoder is None:
+        encoder = LabelEncoder
+
     if copy:
         training_dataframe = training_dataframe.copy()
         testing_dataframe = testing_dataframe.copy()
@@ -150,7 +149,6 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
         training_dataframe.dropna(inplace=True)
         testing_dataframe.dropna(inplace=True)
 
-    obj_cols = []
     for column in training_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
         # If there are very many levels in the column, then it is probably continuous
@@ -166,16 +164,9 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
         # Encode all strings with numerical equivalents
         if str(training_dataframe[column].values.dtype) == 'object':
             if encoder is None:
-                column_label_encoder = LabelEncoder().fit(training_dataframe[column].values)
+                column_label_encoder = encoder(**encoder_kwargs).fit(training_dataframe[column].values)
                 training_dataframe[column] = column_label_encoder.transform(training_dataframe[column].values)
                 testing_dataframe[column] = column_label_encoder.transform(testing_dataframe[column].values)
-            else:
-                obj_cols.append(column)
-
-    if encoder is not None:
-        enc = encoder(cols=obj_cols, **encoder_kwargs).fit(training_dataframe)
-        training_dataframe = enc.transform(training_dataframe)
-        testing_dataframe = enc.transform(testing_dataframe)
 
     return training_dataframe, testing_dataframe
 
