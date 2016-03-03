@@ -31,7 +31,7 @@ from ._version import __version__
 
 update_checked = False
 
-def autoclean(input_dataframe, drop_nans=False, copy=False):
+def autoclean(input_dataframe, drop_nans=False, copy=False, ignore_update_check=False):
     """Performs a series of automated data cleaning transformations on the provided data set
 
     Parameters
@@ -44,6 +44,9 @@ def autoclean(input_dataframe, drop_nans=False, copy=False):
 
     copy: bool
         Make a copy of the data set (default: False)
+    
+    ignore_update_check: bool
+        Do not check for the latest version of datacleaner
 
     Returns
     ----------
@@ -52,6 +55,9 @@ def autoclean(input_dataframe, drop_nans=False, copy=False):
 
     """
     global update_checked
+    if ignore_update_check:
+        update_checked = True
+
     if not update_checked:
         update_check('datacleaner', __version__)
         update_checked = True
@@ -76,7 +82,7 @@ def autoclean(input_dataframe, drop_nans=False, copy=False):
 
     return input_dataframe
 
-def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False):
+def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False, ignore_update_check=False):
     """Performs a series of automated data cleaning transformations on the provided training and testing data sets
 
     Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations
@@ -97,6 +103,9 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
     copy: bool
         Make a copy of the data set (default: False)
 
+    ignore_update_check: bool
+        Do not check for the latest version of datacleaner
+
     Returns
     ----------
     output_training_dataframe: pandas.DataFrame
@@ -107,6 +116,9 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
 
     """
     global update_checked
+    if ignore_update_check:
+        update_checked = True
+
     if not update_checked:
         update_check('datacleaner', __version__)
         update_checked = True
@@ -166,6 +178,9 @@ def main():
 
     parser.add_argument('--drop-nans', action='store_true', dest='DROP_NANS', default=False,
                         help='Drop all rows that have a NaN in any column (default: False)')
+                        
+    parser.add_argument('--ignore-update-check', action='store_true', dest='IGNORE_UPDATE_CHECK', default=False,
+                        help='Do not check for the latest version of datacleaner (default: False)')
 
     parser.add_argument('--version', action='version', version='datacleaner v{version}'.format(version=__version__))
 
@@ -173,7 +188,7 @@ def main():
 
     input_data = pd.read_csv(args.INPUT_FILENAME, sep=args.INPUT_SEPARATOR)
     if args.CROSS_VAL_FILENAME is None:
-        clean_data = autoclean(input_data, drop_nans=args.DROP_NANS)
+        clean_data = autoclean(input_data, drop_nans=args.DROP_NANS, ignore_update_check=args.IGNORE_UPDATE_CHECK)
         if args.OUTPUT_FILENAME is None:
             print('Cleaned data set:')
             print(clean_data)
@@ -188,7 +203,9 @@ def main():
             return
     
         cross_val_data = pd.read_csv(args.CROSS_VAL_FILENAME, sep=args.INPUT_SEPARATOR)
-        clean_training_data, clean_testing_data = autoclean_cv(input_data, cross_val_data, drop_nans=args.DROP_NANS)
+        clean_training_data, clean_testing_data = autoclean_cv(input_data, cross_val_data,
+                                                               drop_nans=args.DROP_NANS,
+                                                               ignore_update_check=args.IGNORE_UPDATE_CHECK)
 
         if args.OUTPUT_FILENAME is None:
             print('Cleaned training data set:')
