@@ -45,7 +45,8 @@ datacleaner can be used on the command line. Use `--help` to see its usage instr
 ```
 usage: datacleaner [-h] [-cv CROSS_VAL_FILENAME] [-o OUTPUT_FILENAME]
                    [-cvo CV_OUTPUT_FILENAME] [-is INPUT_SEPARATOR]
-                   [-os OUTPUT_SEPARATOR] [--drop-nans] [--version]
+                   [-os OUTPUT_SEPARATOR] [--drop-nans]
+                   [--ignore-update-check] [--version]
                    INPUT_FILENAME
 
 A Python tool that automatically cleans data sets and readies them for analysis
@@ -64,8 +65,10 @@ optional arguments:
                         set to
   -is INPUT_SEPARATOR   Column separator for the input file(s) (default: \t)
   -os OUTPUT_SEPARATOR  Column separator for the output file(s) (default: \t)
-  --drop-nans           Drop all rows that have a NaN in any column (default:
-                        False)
+  --drop-nans           Drop all rows that have a NaN in any column (default: False)
+  --ignore-update-check
+                        Do not check for the latest version of datacleaner
+                        (default: False)
   --version             show program's version number and exit
 ```
 
@@ -82,7 +85,7 @@ which will read the data from `my_data.csv` (assuming columns are separated by c
 datacleaner can also be used as part of a script. There are two primary functions implemented in datacleaner: `autoclean` and `autoclean_cv`.
 
 ```
-autoclean(input_dataframe, drop_nans=False, copy=False)
+autoclean(input_dataframe, drop_nans=False, copy=False, ignore_update_check=False)
     Performs a series of automated data cleaning transformations on the provided data set
     
     Parameters
@@ -95,7 +98,10 @@ autoclean(input_dataframe, drop_nans=False, copy=False)
     
     copy: bool
         Make a copy of the data set (default: False)
-    
+
+    ignore_update_check: bool
+        Do not check for the latest version of datacleaner
+
     Returns
     ----------
     output_dataframe: pandas.DataFrame
@@ -103,7 +109,7 @@ autoclean(input_dataframe, drop_nans=False, copy=False)
 ```
 
 ```
-autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False)
+autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False, ignore_update_check=False)
     Performs a series of automated data cleaning transformations on the provided training and testing data sets
     
     Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations
@@ -123,7 +129,10 @@ autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False)
     
     copy: bool
         Make a copy of the data set (default: False)
-    
+
+    ignore_update_check: bool
+        Do not check for the latest version of datacleaner
+
     Returns
     ----------
     output_training_dataframe: pandas.DataFrame
