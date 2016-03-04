@@ -98,10 +98,20 @@ autoclean(input_dataframe, drop_nans=False, copy=False, ignore_update_check=Fals
     
     copy: bool
         Make a copy of the data set (default: False)
+<<<<<<< HEAD
 
     ignore_update_check: bool
         Do not check for the latest version of datacleaner
 
+=======
+        
+    encoder: category_encoders transformer
+        The a valid category_encoders transformer which is passed an inferred cols list. Default (None: LabelEncoder)
+
+    encoder_kwargs: category_encoders
+        The a valid sklearn transformer to encode categorical features. Default (None)
+    
+>>>>>>> c7cd7383ac53d4061fa4e70ba64d8dec07c41779
     Returns
     ----------
     output_dataframe: pandas.DataFrame
@@ -129,10 +139,20 @@ autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False,
     
     copy: bool
         Make a copy of the data set (default: False)
+<<<<<<< HEAD
 
     ignore_update_check: bool
         Do not check for the latest version of datacleaner
 
+=======
+        
+    encoder: category_encoders transformer
+        The a valid category_encoders transformer which is passed an inferred cols list. Default (None: LabelEncoder)
+
+    encoder_kwargs: category_encoders
+        The a valid sklearn transformer to encode categorical features. Default (None)
+    
+>>>>>>> c7cd7383ac53d4061fa4e70ba64d8dec07c41779
     Returns
     ----------
     output_training_dataframe: pandas.DataFrame
