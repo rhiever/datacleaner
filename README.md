@@ -92,13 +92,14 @@ autoclean(input_dataframe, drop_nans=False, copy=False, ignore_update_check=Fals
     ----------
     input_dataframe: pandas.DataFrame
         Data set to clean
-    
     drop_nans: bool
         Drop all rows that have a NaN in any column (default: False)
-    
     copy: bool
-        Make a copy of the data set (default: False)
-
+        Make a copy of the data set (default: False) 
+    encoder: category_encoders transformer
+        The a valid category_encoders transformer which is passed an inferred cols list. Default (None: LabelEncoder)
+    encoder_kwargs: category_encoders
+        The a valid sklearn transformer to encode categorical features. Default (None)
     ignore_update_check: bool
         Do not check for the latest version of datacleaner
 
@@ -120,16 +121,16 @@ autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False,
     ----------
     training_dataframe: pandas.DataFrame
         Training data set
-    
     testing_dataframe: pandas.DataFrame
         Testing data set
-    
     drop_nans: bool
         Drop all rows that have a NaN in any column (default: False)
-    
     copy: bool
-        Make a copy of the data set (default: False)
-
+        Make a copy of the data set (default: False)  
+    encoder: category_encoders transformer
+        The a valid category_encoders transformer which is passed an inferred cols list. Default (None: LabelEncoder)
+    encoder_kwargs: category_encoders
+        The a valid sklearn transformer to encode categorical features. Default (None)
     ignore_update_check: bool
         Do not check for the latest version of datacleaner
 
@@ -137,7 +138,6 @@ autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False,
     ----------
     output_training_dataframe: pandas.DataFrame
         Cleaned training data set
-    
     output_testing_dataframe: pandas.DataFrame
         Cleaned testing data set
 ```

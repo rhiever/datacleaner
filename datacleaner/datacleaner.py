@@ -20,10 +20,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import print_function
-
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
-
 import argparse
 from update_checker import update_check
 
@@ -31,20 +29,22 @@ from ._version import __version__
 
 update_checked = False
 
-def autoclean(input_dataframe, drop_nans=False, copy=False, ignore_update_check=False):
+def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None,
+              encoder_kwargs=None, ignore_update_check=False):
     """Performs a series of automated data cleaning transformations on the provided data set
 
     Parameters
     ----------
     input_dataframe: pandas.DataFrame
         Data set to clean
-
     drop_nans: bool
         Drop all rows that have a NaN in any column (default: False)
-
     copy: bool
         Make a copy of the data set (default: False)
-    
+    encoder: category_encoders transformer
+        The a valid category_encoders transformer which is passed an inferred cols list. Default (None: LabelEncoder)
+    encoder_kwargs: category_encoders
+        The a valid sklearn transformer to encode categorical features. Default (None)
     ignore_update_check: bool
         Do not check for the latest version of datacleaner
 
@@ -64,9 +64,12 @@ def autoclean(input_dataframe, drop_nans=False, copy=False, ignore_update_check=
 
     if copy:
         input_dataframe = input_dataframe.copy()
-    
+
     if drop_nans:
         input_dataframe.dropna(inplace=True)
+
+    if encoder_kwargs is None:
+        encoder_kwargs = {}
 
     for column in input_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
@@ -78,11 +81,17 @@ def autoclean(input_dataframe, drop_nans=False, copy=False, ignore_update_check=
 
         # Encode all strings with numerical equivalents
         if str(input_dataframe[column].values.dtype) == 'object':
-            input_dataframe[column] = LabelEncoder().fit_transform(input_dataframe[column].values)
+            if encoder is None:
+                column_encoder = encoder(**encoder_kwargs).fit(input_dataframe[column].values)
+            else:
+                column_encoder = LabelEncoder().fit(input_dataframe[column].values)
+
+            input_dataframe[column] = column_encoder.transform(input_dataframe[column].values)
 
     return input_dataframe
 
-def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False, ignore_update_check=False):
+def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=False,
+                 encoder=None, encoder_kwargs=None, ignore_update_check=False):
     """Performs a series of automated data cleaning transformations on the provided training and testing data sets
 
     Unlike `autoclean()`, this function takes cross-validation into account by learning the data transformations
@@ -93,16 +102,16 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
     ----------
     training_dataframe: pandas.DataFrame
         Training data set
-
     testing_dataframe: pandas.DataFrame
         Testing data set
-
     drop_nans: bool
         Drop all rows that have a NaN in any column (default: False)
-
     copy: bool
         Make a copy of the data set (default: False)
-
+    encoder: category_encoders transformer
+        The a valid category_encoders transformer which is passed an inferred cols list. Default (None: LabelEncoder)
+    encoder_kwargs: category_encoders
+        The a valid sklearn transformer to encode categorical features. Default (None)
     ignore_update_check: bool
         Do not check for the latest version of datacleaner
 
@@ -110,7 +119,6 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
     ----------
     output_training_dataframe: pandas.DataFrame
         Cleaned training data set
-
     output_testing_dataframe: pandas.DataFrame
         Cleaned testing data set
 
@@ -135,6 +143,9 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
         training_dataframe.dropna(inplace=True)
         testing_dataframe.dropna(inplace=True)
 
+    if encoder_kwargs is None:
+        encoder_kwargs = {}
+
     for column in training_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
         # If there are very many levels in the column, then it is probably continuous
@@ -149,11 +160,16 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
 
         # Encode all strings with numerical equivalents
         if str(training_dataframe[column].values.dtype) == 'object':
-            column_label_encoder = LabelEncoder().fit(training_dataframe[column].values)
-            training_dataframe[column] = column_label_encoder.transform(training_dataframe[column].values)
-            testing_dataframe[column] = column_label_encoder.transform(testing_dataframe[column].values)
+            if encoder is None:
+                column_encoder = encoder(**encoder_kwargs).fit(training_dataframe[column].values)
+            else:
+                column_encoder = LabelEncoder().fit(training_dataframe[column].values)
+
+            training_dataframe[column] = column_encoder.transform(training_dataframe[column].values)
+            testing_dataframe[column] = column_encoder.transform(testing_dataframe[column].values)
 
     return training_dataframe, testing_dataframe
+
 
 def main():
     """Main function that is called when datacleaner is run on the command line"""
