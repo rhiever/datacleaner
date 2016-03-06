@@ -173,3 +173,56 @@ def test_autoclean_cv_with_nans_with_strings():
     
     assert cleaned_training_data.equals(hand_cleaned_training_data)
     assert cleaned_testing_data.equals(hand_cleaned_testing_data)
+
+def test_autoclean_real_data():
+    """Test autoclean() with the adult data set"""
+    adult_data = pd.read_csv('adult.csv.gz', sep='\t', compression='gzip')
+    adult_data.loc[30:60, 'age'] = np.nan
+    adult_data.loc[90:100, 'education'] = np.nan
+    
+    hand_cleaned_adult_data = adult_data.copy()
+    
+    hand_cleaned_adult_data['age'].fillna(hand_cleaned_adult_data['age'].median(), inplace=True)
+    hand_cleaned_adult_data['education'].fillna(hand_cleaned_adult_data['education'].mode()[0], inplace=True)
+    
+    for column in ['workclass', 'education', 'marital-status',
+                   'occupation', 'relationship', 'race',
+                   'sex', 'native-country', 'label']:
+        hand_cleaned_adult_data[column] = LabelEncoder().fit_transform(hand_cleaned_adult_data[column].values)
+    
+    cleaned_adult_data = autoclean(adult_data)
+    
+    assert cleaned_adult_data.equals(hand_cleaned_adult_data)
+
+def test_autoclean_cv_real_data():
+    """Test autoclean_cv() with the adult data set"""
+    adult_data = pd.read_csv('adult.csv.gz', sep='\t', compression='gzip')
+    
+    training_adult_data = adult_data[:int(len(training_adult_data) / 2.)]
+    testing_adult_data = adult_data[int(len(training_adult_data) / 2.):]
+    
+    training_adult_data.loc[30:60, 'age'] = np.nan
+    training_adult_data.loc[90:100, 'education'] = np.nan
+    
+    testing_adult_data.loc[30:60, 'age'] = np.nan
+    testing_adult_data.loc[90:100, 'education'] = np.nan
+    
+    hand_cleaned_training_adult_data = training_adult_data.copy()
+    hand_cleaned_testing_adult_data = testing_adult_data.copy()
+    
+    hand_cleaned_training_adult_data['age'].fillna(hand_cleaned_training_adult_data['age'].median(), inplace=True)
+    hand_cleaned_training_adult_data['education'].fillna(hand_cleaned_training_adult_data['education'].mode()[0], inplace=True)
+
+    hand_cleaned_testing_adult_data['age'].fillna(hand_cleaned_testing_adult_data['age'].median(), inplace=True)
+    hand_cleaned_testing_adult_data['education'].fillna(hand_cleaned_testing_adult_data['education'].mode()[0], inplace=True)
+    
+    for column in ['workclass', 'education', 'marital-status',
+                   'occupation', 'relationship', 'race',
+                   'sex', 'native-country', 'label']:
+        hand_cleaned_training_adult_data[column] = LabelEncoder().fit_transform(hand_cleaned_training_adult_data[column].values)
+        hand_cleaned_testing_adult_data[column] = LabelEncoder().fit_transform(hand_cleaned_testing_adult_data[column].values)
+    
+    cleaned_adult_training_data, cleaned_adult_testing_data = autoclean_cv(training_adult_data, testing_adult_data)
+    
+    assert cleaned_adult_training_data.equals(hand_cleaned_training_adult_data)
+    assert cleaned_adult_testing_data.equals(hand_cleaned_testing_adult_data)
