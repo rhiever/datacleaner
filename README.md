@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/rhiever/datacleaner.svg?branch=master)](https://travis-ci.org/rhiever/datacleaner)
 [![Code Health](https://landscape.io/github/rhiever/datacleaner/master/landscape.svg?style=flat)](https://landscape.io/github/rhiever/datacleaner/master)
+[![PyPI version](https://badge.fury.io/py/datacleaner.svg)](https://badge.fury.io/py/datacleaner)
 [![Coverage Status](https://coveralls.io/repos/github/rhiever/datacleaner/badge.svg?branch=master)](https://coveralls.io/github/rhiever/datacleaner?branch=master)
 ![Python 2.7](https://img.shields.io/badge/python-2.7-blue.svg)
 ![Python 3.5](https://img.shields.io/badge/python-3.5-blue.svg)
