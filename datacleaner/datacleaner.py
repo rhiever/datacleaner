@@ -73,10 +73,9 @@ def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None,
 
     for column in input_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
-        # If there are very many levels in the column, then it is probably continuous
-        if len(input_dataframe[column].unique()) > 0.2 * len(input_dataframe):
+        try:
             input_dataframe[column].fillna(input_dataframe[column].median(), inplace=True)
-        else:
+        except TypeError:
             input_dataframe[column].fillna(input_dataframe[column].mode()[0], inplace=True)
 
         # Encode all strings with numerical equivalents
@@ -148,12 +147,11 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
 
     for column in training_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
-        # If there are very many levels in the column, then it is probably continuous
-        if len(training_dataframe[column].unique()) > 0.2 * len(training_dataframe):
+        try:
             column_median = training_dataframe[column].median()
             training_dataframe[column].fillna(column_median, inplace=True)
             testing_dataframe[column].fillna(column_median, inplace=True)
-        else:
+        except TypeError:
             column_mode = training_dataframe[column].mode()[0]
             training_dataframe[column].fillna(column_mode, inplace=True)
             testing_dataframe[column].fillna(column_mode, inplace=True)
