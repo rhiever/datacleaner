@@ -12,6 +12,8 @@
 
 # datacleaner
 
+[![Join the chat at https://gitter.im/rhiever/datacleaner](https://badges.gitter.im/rhiever/datacleaner.svg)](https://gitter.im/rhiever/datacleaner?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A Python tool that automatically cleans data sets and readies them for analysis.
 
 ## datacleaner is not magic
