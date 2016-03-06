@@ -81,7 +81,7 @@ def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None,
 
         # Encode all strings with numerical equivalents
         if str(input_dataframe[column].values.dtype) == 'object':
-            if encoder is None:
+            if encoder is not None:
                 column_encoder = encoder(**encoder_kwargs).fit(input_dataframe[column].values)
             else:
                 column_encoder = LabelEncoder().fit(input_dataframe[column].values)
@@ -160,7 +160,7 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
 
         # Encode all strings with numerical equivalents
         if str(training_dataframe[column].values.dtype) == 'object':
-            if encoder is None:
+            if encoder is not None:
                 column_encoder = encoder(**encoder_kwargs).fit(training_dataframe[column].values)
             else:
                 column_encoder = LabelEncoder().fit(training_dataframe[column].values)
