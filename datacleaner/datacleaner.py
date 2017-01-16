@@ -76,7 +76,13 @@ def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None,
         try:
             input_dataframe[column].fillna(input_dataframe[column].median(), inplace=True)
         except TypeError:
-            input_dataframe[column].fillna(input_dataframe[column].mode()[0], inplace=True)
+            most_frequent = input_dataframe[column].mode()
+            if len(most_frequent)>0:
+                input_dataframe[column].fillna(input_dataframe[column].mode()[0], inplace=True)
+            else:
+                input_dataframe[column].fillna(method='bfill', inplace=True)
+                input_dataframe[column].fillna(method='ffill', inplace=True)
+
 
         # Encode all strings with numerical equivalents
         if str(input_dataframe[column].values.dtype) == 'object':
