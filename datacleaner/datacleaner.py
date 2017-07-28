@@ -174,6 +174,9 @@ def autoclean_cv(training_dataframe, testing_dataframe, drop_nans=False, copy=Fa
             training_dataframe[column] = column_encoder.transform(training_dataframe[column].values)
             testing_dataframe[column] = column_encoder.transform(testing_dataframe[column].values)
 
+    training_dataframe.columns =  [c.strip() for c in training_dataframe.columns]
+    testing_dataframe.columns  =  [c.strip() for c in testing_dataframe.columns]
+    
     return training_dataframe, testing_dataframe
 
 
