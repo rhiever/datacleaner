@@ -30,7 +30,7 @@ from ._version import __version__
 update_checked = False
 
 def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None,
-              encoder_kwargs=None, ignore_update_check=False):
+              encoder_kwargs=None, ignore_update_check=False,**kwargs):
     """Performs a series of automated data cleaning transformations on the provided data set
 
     Parameters
@@ -47,6 +47,9 @@ def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None,
         The a valid sklearn transformer to encode categorical features. Default (None)
     ignore_update_check: bool
         Do not check for the latest version of datacleaner
+
+    fill_func : function or method or string in 'full_func_list'
+        the function to fill nan
 
     Returns
     ----------
@@ -71,10 +74,25 @@ def autoclean(input_dataframe, drop_nans=False, copy=False, encoder=None,
     if encoder_kwargs is None:
         encoder_kwargs = {}
 
+    fill_func = kwargs.pop('fill_func',"median")
+
+    import inspect
+    assert inspect.isfunction(fill_func) or inspect.ismethod(fill_func) or type(fill_func) == str
+
+    full_func_list = [
+        'sum', 'max', 'min', 'argmax', 'argmin', 'mean',
+        'median','prod'
+    ]
+
+    if type(fill_func) == str and fill_func in full_func_list:
+        fill_func = "nan{func}".format(func=fill_func)
+        mod = __import__("numpy.lib.nanfunctions",fromlist=[fill_func])
+        fill_func = getattr(mod,fill_func)
+
     for column in input_dataframe.columns.values:
         # Replace NaNs with the median or mode of the column depending on the column type
         try:
-            input_dataframe[column].fillna(input_dataframe[column].median(), inplace=True)
+            input_dataframe[column].fillna(fill_func(input_dataframe[column]), inplace=True)
         except TypeError:
             most_frequent = input_dataframe[column].mode()
             # If the mode can't be computed, use the nearest valid value
