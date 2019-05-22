@@ -235,3 +235,24 @@ def test_autoclean_cv_real_data():
 
     assert cleaned_adult_training_data.equals(hand_cleaned_training_adult_data)
     assert cleaned_adult_testing_data.equals(hand_cleaned_testing_adult_data)
+
+
+def test_autoclean_with_nans_all_numerical_with_fill_func():
+    """Test autoclean() with a data set that has all numerical values and some NaNs"""
+    data = pd.DataFrame({'A': np.random.rand(1000),
+                         'B': np.random.rand(1000),
+                         'C': np.random.randint(0, 3, 1000)})
+
+    data.loc[10:20, 'A'] = np.nan
+    data.loc[50:70, 'C'] = np.nan
+
+    hand_cleaned_data = data.copy()
+    hand_cleaned_data['A'].fillna(hand_cleaned_data['A'].sum(), inplace=True)
+    hand_cleaned_data['C'].fillna(hand_cleaned_data['C'].sum(), inplace=True)
+
+    cleaned_data = autoclean(data,fill_func="sum")
+
+    assert cleaned_data.equals(hand_cleaned_data)
+
+if __name__ == '__main__':
+    test_autoclean_with_nans_all_numerical_with_fill_func()
